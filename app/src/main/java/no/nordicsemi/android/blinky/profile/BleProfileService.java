@@ -30,6 +30,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.widget.Toast;
 
 public abstract class BleProfileService extends Service implements BleManagerCallbacks {
@@ -197,6 +198,7 @@ public abstract class BleProfileService extends Service implements BleManagerCal
 
 	@Override
 	public int onStartCommand(final Intent intent, final int flags, final int startId) {
+		Log.d(TAG, "onStartCommand");
 		if (intent == null || !intent.hasExtra(EXTRA_DEVICE_ADDRESS))
 			throw new UnsupportedOperationException("No device address at EXTRA_DEVICE_ADDRESS key");
 
@@ -339,6 +341,7 @@ public abstract class BleProfileService extends Service implements BleManagerCal
 
 	@Override
 	public void onError(final String message, final int errorCode) {
+		Log.d("Blink", "onError: message:" + message + " errorCode:" + errorCode);
 		final Intent broadcast = new Intent(BROADCAST_ERROR);
 		broadcast.putExtra(EXTRA_ERROR_MESSAGE, message);
 		broadcast.putExtra(EXTRA_ERROR_CODE, errorCode);

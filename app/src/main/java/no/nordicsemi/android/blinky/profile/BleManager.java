@@ -33,6 +33,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
+import android.util.Log;
 
 import java.util.Queue;
 import java.util.UUID;
@@ -179,6 +180,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 
 		final boolean autoConnect = shouldAutoConnect();
 		mUserDisconnected = !autoConnect; // We will receive Linkloss events only when the device is connected with autoConnect=true
+		Log.d(TAG, "connectGatt autoConnect:" + autoConnect + "");
 		mBluetoothGatt = device.connectGatt(mContext, autoConnect, getGattCallback());
 	}
 
@@ -571,6 +573,10 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 
 		@Override
 		public final void onConnectionStateChange(final BluetoothGatt gatt, final int status, final int newState) {
+			Log.d(TAG, "onConnectionStateChange status:" + status + " newState:" + newState);
+			if (status != BluetoothGatt.GATT_SUCCESS) {
+				Log.e(TAG, "status:" + status);
+			}
 			if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
 				// Notify the parent activity/service
 				mConnected = true;
@@ -592,6 +598,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 				 * NOTE: This applies only for bonded devices with Service Changed characteristic, but to be sure we will postpone
 				 * service discovery for all devices.
 				 */
+				Log.d(TAG, "before discoverServices sleep 600 ms");
 				mHandler.postDelayed(new Runnable() {
 					@Override
 					public void run() {
@@ -623,6 +630,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 
 		@Override
 		public final void onServicesDiscovered(final BluetoothGatt gatt, final int status) {
+			Log.d(TAG, "onServicesDiscovered. status:" + status);
 			if (status == BluetoothGatt.GATT_SUCCESS) {
 				if (isRequiredServiceSupported(gatt)) {
 					final boolean optionalServicesFound = isOptionalServiceSupported(gatt);
@@ -643,6 +651,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 					if (!readBatteryLevel())
 						nextRequest();
 				} else {
+					Log.e("Blink", "isRequiredServiceSupported false");
 					mCallbacks.onDeviceNotSupported();
 					disconnect();
 				}

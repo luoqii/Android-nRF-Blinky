@@ -35,13 +35,15 @@ import no.nordicsemi.android.blinky.profile.BleManager;
 
 public class BlinkyManager extends BleManager<BlinkyManagerCallbacks> {
 	/** Nordic Blinky Service UUID */
-	private final static UUID LBS_UUID_SERVICE = UUID.fromString("00001523-1212-efde-1523-785feabcd123");
+	private final static UUID LBS_UUID_SERVICE = UUID.fromString("0000FEB3-0000-1000-8000-00805f9b34fb");
 	/** BUTTON characteristic UUID */
 	private final static UUID LBS_UUID_BUTTON_CHAR = UUID.fromString("00001524-1212-efde-1523-785feabcd123");
 	/** LED characteristic UUID */
 	private final static UUID LBS_UUID_LED_CHAR = UUID.fromString("00001525-1212-efde-1523-785feabcd123");
 
 	private BluetoothGattCharacteristic mButtonCharacteristic, mLedCharacteristic;
+
+	private BluetoothGattCharacteristic mIndicate;
 
 	public BlinkyManager(final Context context) {
 		super(context);
@@ -60,7 +62,7 @@ public class BlinkyManager extends BleManager<BlinkyManagerCallbacks> {
 		@Override
 		protected Queue<Request> initGatt(final BluetoothGatt gatt) {
 			final LinkedList<Request> requests = new LinkedList<>();
-			requests.push(Request.newEnableNotificationsRequest(mButtonCharacteristic));
+			requests.push(Request.newEnableNotificationsRequest(mIndicate));
 			return requests;
 		}
 
@@ -68,17 +70,18 @@ public class BlinkyManager extends BleManager<BlinkyManagerCallbacks> {
 		public boolean isRequiredServiceSupported(final BluetoothGatt gatt) {
 			final BluetoothGattService service = gatt.getService(LBS_UUID_SERVICE);
 			if (service != null) {
-				mButtonCharacteristic = service.getCharacteristic(LBS_UUID_BUTTON_CHAR);
-				mLedCharacteristic = service.getCharacteristic(LBS_UUID_LED_CHAR);
+//				mButtonCharacteristic = service.getCharacteristic(LBS_UUID_BUTTON_CHAR);
+//				mLedCharacteristic = service.getCharacteristic(LBS_UUID_LED_CHAR);
+				mIndicate = service.getCharacteristic(UUID.fromString("0000FED6-0000-1000-8000-00805f9b34fb"));
 			}
 
-			boolean writeRequest = false;
-			if (mLedCharacteristic != null) {
-				final int rxProperties = mLedCharacteristic.getProperties();
-				writeRequest = (rxProperties & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0;
-			}
+//			boolean writeRequest = false;
+//			if (mLedCharacteristic != null) {
+//				final int rxProperties = mLedCharacteristic.getProperties();
+//				writeRequest = (rxProperties & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0;
+//			}
 
-			return mButtonCharacteristic != null && mLedCharacteristic != null && writeRequest;
+			return mIndicate != null;
 		}
 
 		@Override

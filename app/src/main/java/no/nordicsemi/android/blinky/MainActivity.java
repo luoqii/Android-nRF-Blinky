@@ -374,7 +374,8 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 		mBleDeviceListAdapter.notifyDataSetChanged();
 
 		mScannerHandler.postDelayed(mStopScanningTask, SCAN_PERIOD);
-		mScanner.startScan(scanFilterList, settings, scanCallback);
+//		mScanner.startScan(scanFilterList, settings, scanCallback);
+		mScanner.startScan(scanCallback);
 		mScanning = true;
 		invalidateOptionsMenu();
 	}
@@ -396,7 +397,16 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 	private ScanCallback scanCallback = new ScanCallback() {
 		@Override
 		public void onScanResult(final int callbackType, final ScanResult result) {
+			boolean newDeviceFound = false;
 			// We scan with report delay > 0. This will never be called.
+			if (!mBleDeviceListAdapter.hasDevice(result)) {
+				newDeviceFound = true;
+				mBleDeviceListAdapter.addDevice(new ExtendedBluetoothDevice(result));
+			}
+
+
+			if (newDeviceFound)
+				mBleDeviceListAdapter.notifyDataSetChanged();
 		}
 
 		@Override
